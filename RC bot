@@ -1,1 +1,69 @@
+#include <TELEOP.h>   // TETRIX TeleOp module Library 
 
+#include <PRIZM.h>    // TETRIX PRIZM Library 
+
+  
+
+PRIZM prizm;          // Create an instance within the PRIZM Library class named prizm 
+
+PS4 ps4;              // Create an instance within the PS4 Library class named ps4 
+
+  
+
+int PowerM1;          // Channel 1 Motor Power  
+
+int PowerM2;          // Channel 2 Motor Power 
+
+int speedMod = 100;      
+
+  
+
+void setup() { 
+
+  
+
+  prizm.PrizmBegin();            // Intializes the PRIZM controller and waits here for press of green start button 
+
+  ps4.setDeadZone (LEFT,10);     // Sets a Left Joystick Dead Zone axis range of +/- 10 about center stick 
+
+  ps4.setDeadZone(RIGHT,10);     // Sets a Right Joystick Dead Zone axis range of +/- 10 about center stick 
+
+  prizm.setMotorInvert(2,1); 
+
+  Serial.begin(115200); 
+
+} 
+
+  
+
+void loop() { 
+
+  
+
+  ps4.getPS4();                                 // Get (read) PS4 connections status and all PS4 button and joystick data values 
+
+  
+
+  if(ps4.Connected){                            // If PS4 controller has been succesfully connected, control motors 
+
+      PowerM1 = ps4.Motor(L2T);                  // Power (speed) and direction of Motor 1 is set by position of Left Y-axis Joystick 
+
+      PowerM2 = ps4.Motor(R2T);                  // Power (speed) and direction of Motor 2 is set by position of Right Y-axis Joystick 
+
+      speedMod = map(ps4.Touchpad(TOUCHX), 0, 1920, 0, 100); 
+
+      int testing = ps4.Touchpad(TOUCHX); 
+
+      Serial.println(testing); 
+
+      prizm.setMotorPowers(PowerM1*(speedMod/100), PowerM2*(speedMod/100));     
+
+  
+
+  } 
+
+  else{                                         // If PS4 is not connected, stop motors 
+
+      prizm.setMotorPowers(0,0); 
+
+  } 
